@@ -41,7 +41,7 @@
 #include "stm32f0xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "../lib/HD44780/HD44780.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
