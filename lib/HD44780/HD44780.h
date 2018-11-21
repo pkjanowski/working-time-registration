@@ -32,3 +32,6 @@
 #define HD44780_DDRAN_SET_ADDRESS	0x80
 
 
+void sendHalfByte(uint8_t data);
+
+
