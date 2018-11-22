@@ -41,7 +41,7 @@
 #include "stm32f0xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-#include "../lib/HD44780/HD44780.h"
+#include "HD44780.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -95,6 +95,8 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
+  HD44780_init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -107,6 +109,10 @@ int main(void)
   /* USER CODE BEGIN 3 */
 
 	  HAL_GPIO_WritePin(YELLOW_LED_GPIO_Port, YELLOW_LED_Pin, GPIO_PIN_SET);
+	  HD44780_locate(0, 0);
+	  HD44780_sendStringRowCol(0, 0, "Czesc");
+	  HD44780_sendStringRowCol(1, 0, "Patryk :D");
+
 
 
 
