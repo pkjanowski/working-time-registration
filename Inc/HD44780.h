@@ -36,5 +36,6 @@ void HD44780_init();
 void HD44780_clearDisp();
 void HD44780_sendString (char * str);
 void HD44780_locate(uint8_t row, uint8_t col);
+void HD44780_sendStringRowCol (uint8_t row, uint8_t col, char * str);
 
 
