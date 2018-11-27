@@ -65,6 +65,8 @@
 #define HD44780_D6_GPIO_Port GPIOC
 #define HD44780_D7_Pin GPIO_PIN_6
 #define HD44780_D7_GPIO_Port GPIOC
+#define SPI1_CS_Pin GPIO_PIN_7
+#define SPI1_CS_GPIO_Port GPIOC
 #define YELLOW_LED_Pin GPIO_PIN_8
 #define YELLOW_LED_GPIO_Port GPIOC
 
