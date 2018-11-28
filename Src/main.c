@@ -40,6 +40,7 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
 
+
 /* USER CODE BEGIN Includes */
 #include "HD44780.h"
 /* USER CODE END Includes */
@@ -52,6 +53,20 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
+typedef struct {
+	volatile char * const bufferAddress;
+	uint8_t head;
+	uint8_t tail;
+} circular_buffer;
+
+char LCD_text[25];
+
+volatile char buffer;
+
+volatile char UART_receive_buf[UART_RECEIVE_BUFFER_SIZE];
+
+volatile circular_buffer UART_receive_circBuffer = {UART_receive_buf, 0, 0};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -63,15 +78,15 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 void USART_sendString(char * str);
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	//HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, 1);
-	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-
-}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
+int8_t UART_get_char_from_buffer (char *data);
 
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+
+
 
 /* USER CODE END 0 */
 
@@ -109,11 +124,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HD44780_init();
-  //USART_sendString("asdf movie");
-
-
-
-
 
 
   /* USER CODE END 2 */
@@ -125,9 +135,9 @@ while (1) {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	uint8_t buffer;
 	HAL_UART_Receive_IT(&huart2, &buffer, sizeof(buffer));
-
+	UART_get_char_from_buffer(LCD_text);
+	HD44780_sendStringRowCol(0, 0, LCD_text);
 }
   /* USER CODE END 3 */
 
@@ -282,8 +292,49 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void USART_sendString(char * str) {			//transmisja blokująca1!!! lepiej użyc funkcji HAL_UART_Transmit_IT (transmisja na przerwanianiach)
+void USART_sendString(char * str) {
 	HAL_UART_Transmit(&huart2, (uint8_t*)str, strlen(str), HAL_MAX_DELAY);
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	//HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, 1);
+	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+
+	uint8_t head_temp = UART_receive_circBuffer.head +1;
+
+	//HD44780_sendStringRowCol(0, 0, head_temp);
+
+	if(head_temp == UART_RECEIVE_BUFFER_SIZE){
+		head_temp = 0;
+		HAL_GPIO_TogglePin(YELLOW_LED_GPIO_Port, YELLOW_LED_Pin);
+	}
+
+	else{
+		char str[25];
+		UART_receive_circBuffer.bufferAddress[head_temp] = buffer;
+		UART_receive_circBuffer.head = head_temp;
+		sprintf(str, "Added to buffer: %c \r\n", buffer);
+		USART_sendString(str);
+
+	}
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+
+}
+
+int8_t UART_get_char_from_buffer (char *data){
+	if(UART_receive_circBuffer.head == UART_receive_circBuffer.tail)
+		return -1;
+
+	UART_receive_circBuffer.tail++;
+
+	if(UART_receive_circBuffer.tail == UART_RECEIVE_BUFFER_SIZE)
+		UART_receive_circBuffer.tail = 0;
+
+	*data = UART_receive_circBuffer.bufferAddress[UART_receive_circBuffer.tail];
+
+	return 0;
 }
 
 /* USER CODE END 4 */

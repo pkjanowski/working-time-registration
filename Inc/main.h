@@ -70,6 +70,7 @@
 #define YELLOW_LED_Pin GPIO_PIN_8
 #define YELLOW_LED_GPIO_Port GPIOC
 
+
 /* ########################## Assert Selection ############################## */
 /**
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 
@@ -78,6 +79,7 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
+#define UART_RECEIVE_BUFFER_SIZE 10
 
 /* USER CODE END Private defines */
 
